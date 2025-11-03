@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONNX Model Loader with Security Scanner</title>
+	<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.1/dist/ort.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 20px;
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: #edf2f7;
+            border-color: #667eea;
+        }
+
+        .file-input-label.has-file {
+            background: #e6fffa;
+            border-color: #38b2ac;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button.danger {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+        }
+
+        .button.warning {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+        }
+
+        .info-box {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+
+        .info-box h3 {
+            font-size: 14px;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .info-box p, .info-box li {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+
+        .alert-critical {
+            background: #fed7d7;
+            border: 2px solid #fc8181;
+            color: #742a2a;
+        }
+
+        .alert-warning {
+            background: #fef5e7;
+            border: 2px solid #f6ad55;
+            color: #744210;
+        }
+
+        .alert-info {
+            background: #bee3f8;
+            border: 2px solid #4299e1;
+            color: #2c5282;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            border: 2px solid #48bb78;
+            color: #22543d;
+        }
+
+        .alert-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .findings-list {
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .findings-list li {
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+
+        .output-box {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .output-box:empty::before {
+            content: 'Output will appear here...';
+            color: #718096;
+            font-style: italic;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .badge-critical { background: #fed7d7; color: #742a2a; }
+        .badge-high { background: #fef5e7; color: #744210; }
+        .badge-medium { background: #fef5e7; color: #744210; }
+        .badge-low { background: #bee3f8; color: #2c5282; }
+        .badge-safe { background: #c6f6d5; color: #22543d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 ONNX Model Loader + Security Scanner</h1>
+            <p>Scan for threats before loading ONNX models</p>
+        </div>
+
+        <div class="content">
+            <!-- File Upload Section -->
+            <div class="section">
+                <h2>📁 Step 1: Select ONNX Model</h2>
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" accept=".onnx">
+                    <label class="file-input-label" id="fileLabel">
+                        <div style="font-size: 40px; margin-bottom: 10px;">📤</div>
+                        <div style="font-weight: 600; margin-bottom: 5px;">Click to select ONNX file</div>
+                        <div style="font-size: 12px; color: #718096;">File will be scanned for security threats</div>
+                    </label>
+                </div>
+                <button class="button" id="scanBtn" disabled>Scan for Security Threats</button>
+            </div>
+
+            <!-- Security Scan Results -->
+            <div class="section" id="scanResultsSection" style="display: none;">
+                <h2>🔍 Step 2: Security Scan Results</h2>
+                <div id="scanResults"></div>
+                <button class="button" id="loadBtn" style="display: none;">Proceed to Load Model</button>
+            </div>
+
+            <!-- Model Info Section -->
+            <div class="section" id="modelInfoSection" style="display: none;">
+                <h2>ℹ️ Step 3: Model Information</h2>
+                <div class="info-box" id="modelInfo"></div>
+            </div>
+
+            <!-- Inference Section -->
+            <div class="section" id="inferenceSection" style="display: none;">
+                <h2>🚀 Step 4: Run Inference (Example)</h2>
+                <div class="info-box">
+                    <p><strong>Note:</strong> This runs with random input data for testing purposes.</p>
+                </div>
+                <button class="button" id="inferBtn">Run Inference with Random Data</button>
+                <div id="inferStatus"></div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="section">
+                <h2>📊 Detailed Output</h2>
+                <div class="output-box" id="output"></div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="section">
+                <div class="info-box">
+                    <h3>🔒 Security Features:</h3>
+                    <ul>
+                        <li>Scans for HTTP/HTTPS URLs in model</li>
+                        <li>Detects custom operators (potential code execution)</li>
+                        <li>Identifies external data references</li>
+                        <li>Checks for suspicious code patterns</li>
+                        <li>Detects embedded executables</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let session = null;
+        let modelFile = null;
+        let modelArrayBuffer = null;
+        let scanPassed = false;
+
+        const fileInput = document.getElementById('fileInput');
+        const fileLabel = document.getElementById('fileLabel');
+        const scanBtn = document.getElementById('scanBtn');
+        const scanResultsSection = document.getElementById('scanResultsSection');
+        const scanResults = document.getElementById('scanResults');
+        const loadBtn = document.getElementById('loadBtn');
+        const modelInfoSection = document.getElementById('modelInfoSection');
+        const modelInfo = document.getElementById('modelInfo');
+        const inferenceSection = document.getElementById('inferenceSection');
+        const inferBtn = document.getElementById('inferBtn');
+        const inferStatus = document.getElementById('inferStatus');
+        const output = document.getElementById('output');
+
+        // File selection
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                modelFile = e.target.files[0];
+                fileLabel.classList.add('has-file');
+                fileLabel.innerHTML = `
+                    <div style="font-size: 40px; margin-bottom: 10px;">✅</div>
+                    <div style="font-weight: 600; margin-bottom: 5px;">${modelFile.name}</div>
+                    <div style="font-size: 12px; color: #718096;">${(modelFile.size / 1024 / 1024).toFixed(2)} MB</div>
+                `;
+                scanBtn.disabled = false;
+                scanResultsSection.style.display = 'none';
+                modelInfoSection.style.display = 'none';
+                inferenceSection.style.display = 'none';
+                output.textContent = '';
+                scanPassed = false;
+            }
+        });
+
+        // Security scan
+        scanBtn.addEventListener('click', async function() {
+            if (!modelFile) return;
+
+            scanBtn.disabled = true;
+            output.textContent = 'Starting security scan...\n';
+            output.textContent += '========================\n\n';
+
+            try {
+                // Read file
+                modelArrayBuffer = await modelFile.arrayBuffer();
+                const uint8Array = new Uint8Array(modelArrayBuffer);
+                
+                output.textContent += `File: ${modelFile.name}\n`;
+                output.textContent += `Size: ${(modelFile.size / 1024 / 1024).toFixed(2)} MB\n\n`;
+
+                // Perform security scan
+                const findings = await performSecurityScan(uint8Array);
+                
+                // Display results
+                displayScanResults(findings);
+                
+                scanResultsSection.style.display = 'block';
+
+            } catch (error) {
+                output.textContent += `\n❌ Error during scan:\n${error.message}\n`;
+                scanResults.innerHTML = `<div class="alert alert-critical">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                        <div class="alert-title">Scan Error</div>
+                        <div>${error.message}</div>
+                    </div>
+                </div>`;
+            } finally {
+                scanBtn.disabled = false;
+            }
+        });
+
+        // Perform security scan
+        async function performSecurityScan(data) {
+            const findings = {
+                critical: [],
+                warnings: [],
+                info: [],
+                safe: []
+            };
+
+            output.textContent += 'Running security checks...\n\n';
+
+            // Convert to text for pattern matching
+            const decoder = new TextDecoder('utf-8', { fatal: false });
+            const textContent = decoder.decode(data);
+
+            // 1. Check for URLs (HTTP/HTTPS)
+            output.textContent += '[1/8] Checking for embedded URLs...\n';
+            const urlPattern = /(https?:\/\/[^\s"'<>]+)/gi;
+            const urls = textContent.match(urlPattern) || [];
+            if (urls.length > 0) {
+                const uniqueUrls = [...new Set(urls)];
+                findings.critical.push({
+                    type: 'URLs Found',
+                    message: `Found ${uniqueUrls.length} embedded URL(s) in model`,
+                    details: uniqueUrls
+                });
+                output.textContent += `  ⚠️ CRITICAL: Found ${uniqueUrls.length} URL(s)\n`;
+                uniqueUrls.forEach(url => output.textContent += `     - ${url}\n`);
+            } else {
+                findings.safe.push('No HTTP/HTTPS URLs found');
+                output.textContent += `  ✓ No URLs found\n`;
+            }
+
+            // 2. Check for custom operators/domains
+            output.textContent += '\n[2/8] Checking for custom operators...\n';
+            const customDomainPattern = /domain\s*[:=]\s*["']([^"']+)["']/gi;
+            const customDomains = [];
+            let match;
+            while ((match = customDomainPattern.exec(textContent)) !== null) {
+                customDomains.push(match[1]);
+            }
+            
+            const standardDomains = ['ai.onnx', 'ai.onnx.ml', 'com.microsoft'];
+            const nonStandardDomains = customDomains.filter(d => !standardDomains.includes(d));
+            
+            if (nonStandardDomains.length > 0) {
+                findings.warnings.push({
+                    type: 'Custom Operators',
+                    message: `Found custom operator domain(s)`,
+                    details: [...new Set(nonStandardDomains)]
+                });
+                output.textContent += `  ⚠️ WARNING: Custom domains found\n`;
+                nonStandardDomains.forEach(d => output.textContent += `     - ${d}\n`);
+            } else if (customDomains.length > 0) {
+                findings.safe.push('Only standard ONNX domains found');
+                output.textContent += `  ✓ Only standard domains\n`;
+            } else {
+                output.textContent += `  ✓ No custom domains\n`;
+            }
+
+            // 3. Check for external data references
+            output.textContent += '\n[3/8] Checking for external data references...\n';
+            const externalDataPattern = /external_data|location\s*[:=]/gi;
+            const hasExternalData = externalDataPattern.test(textContent);
+            if (hasExternalData) {
+                findings.warnings.push({
+                    type: 'External Data',
+                    message: 'Model references external data files',
+                    details: ['Model may load data from external files']
+                });
+                output.textContent += `  ⚠️ WARNING: External data references found\n`;
+            } else {
+                findings.safe.push('No external data references');
+                output.textContent += `  ✓ No external data references\n`;
+            }
+
+            // 4. Check for file paths
+            output.textContent += '\n[4/8] Checking for suspicious file paths...\n';
+            const pathPatterns = [
+                /\.\.[\/\\]/g,  // Path traversal
+                /[A-Za-z]:[\\][^\s"']*/g,  // Windows paths
+                /\/etc\/[^\s"']*/g,  // Linux system paths
+                /\/usr\/[^\s"']*/g,
+                /\/var\/[^\s"']*/g,
+                /\/home\/[^\s"']*/g,
+                /\/tmp\/[^\s"']*/g,
+                /\/opt\/[^\s"']*/g,
+                /\/root\/[^\s"']*/g
+            ];
+            
+            let pathsFound = [];
+            pathPatterns.forEach(pattern => {
+                const matches = textContent.match(pattern) || [];
+                pathsFound = pathsFound.concat(matches);
+            });
+            
+            // Remove duplicates while preserving all paths
+            const uniquePaths = [...new Set(pathsFound)];
+            
+            if (uniquePaths.length > 0) {
+                findings.warnings.push({
+                    type: 'File Paths',
+                    message: `Found ${uniquePaths.length} suspicious file path(s)`,
+                    details: uniquePaths  // ALL paths, no truncation
+                });
+                output.textContent += `  ⚠️ WARNING: Found ${uniquePaths.length} file path(s)\n`;
+                output.textContent += `  Listing ALL detected paths:\n`;
+                uniquePaths.forEach((path, idx) => {
+                    output.textContent += `     ${idx + 1}. ${path}\n`;
+                });
+            } else {
+                output.textContent += `  ✓ No suspicious paths\n`;
+            }
+
+            // 5. Check for code execution patterns
+            output.textContent += '\n[5/8] Checking for code execution patterns...\n';
+            const dangerousPatterns = [
+                'eval(', 'exec(', 'system(', 'subprocess', 'popen(',
+                '__import__', 'compile(', 'execfile(', 'globals(',
+                'locals(', 'execvp(', 'fork(', 'spawn('
+            ];
+            
+            const foundPatterns = dangerousPatterns.filter(p => textContent.includes(p));
+            if (foundPatterns.length > 0) {
+                findings.critical.push({
+                    type: 'Code Execution',
+                    message: 'Code execution patterns detected',
+                    details: foundPatterns
+                });
+                output.textContent += `  ⚠️ CRITICAL: Code execution patterns found\n`;
+                foundPatterns.forEach(p => output.textContent += `     - ${p}\n`);
+            } else {
+                findings.safe.push('No code execution patterns');
+                output.textContent += `  ✓ No code execution patterns\n`;
+            }
+
+            // 6. Check for embedded executables
+            output.textContent += '\n[6/8] Checking for embedded executables...\n';
+            const hasPE = data[0] === 0x4D && data[1] === 0x5A; // MZ
+            const hasELF = data[0] === 0x7F && data[1] === 0x45 && 
+                          data[2] === 0x4C && data[3] === 0x46; // ELF
+            
+            if (hasPE || hasELF) {
+                findings.critical.push({
+                    type: 'Embedded Executable',
+                    message: `Embedded ${hasPE ? 'PE (Windows)' : 'ELF (Linux)'} executable detected`,
+                    details: ['File contains executable code headers']
+                });
+                output.textContent += `  ⚠️ CRITICAL: Embedded executable found\n`;
+            } else {
+                findings.safe.push('No embedded executables');
+                output.textContent += `  ✓ No embedded executables\n`;
+            }
+
+            // 7. Check for network-related strings
+            output.textContent += '\n[7/8] Checking for network operations...\n';
+            const networkPatterns = ['socket', 'connect(', 'send(', 'recv(', 'curl', 'wget', 'fetch('];
+            const foundNetwork = networkPatterns.filter(p => textContent.includes(p));
+            
+            if (foundNetwork.length > 0) {
+                findings.warnings.push({
+                    type: 'Network Operations',
+                    message: 'Network operation strings detected',
+                    details: foundNetwork
+                });
+                output.textContent += `  ⚠️ WARNING: Network patterns found\n`;
+            } else {
+                output.textContent += `  ✓ No network operations\n`;
+            }
+
+            // 8. File entropy check
+            output.textContent += '\n[8/8] Checking file entropy...\n';
+            const entropy = calculateEntropy(data.slice(0, 10000));
+            findings.info.push(`File entropy: ${entropy.toFixed(2)}`);
+            
+            if (entropy > 7.9) {
+                findings.warnings.push({
+                    type: 'High Entropy',
+                    message: 'Unusually high entropy detected',
+                    details: [`Entropy: ${entropy.toFixed(2)} (may indicate encryption or compression)`]
+                });
+                output.textContent += `  ⚠️ High entropy: ${entropy.toFixed(2)}\n`;
+            } else {
+                output.textContent += `  ✓ Normal entropy: ${entropy.toFixed(2)}\n`;
+            }
+
+            output.textContent += '\n✅ Security scan complete!\n\n';
+            return findings;
+        }
+
+        function calculateEntropy(data) {
+            const freq = new Array(256).fill(0);
+            data.forEach(byte => freq[byte]++);
+            
+            let entropy = 0;
+            const len = data.length;
+            
+            freq.forEach(count => {
+                if (count > 0) {
+                    const p = count / len;
+                    entropy -= p * Math.log2(p);
+                }
+            });
+            
+            return entropy;
+        }
+
+        function displayScanResults(findings) {
+            let html = '';
+            let riskLevel = 'safe';
+
+            // Critical findings
+            if (findings.critical.length > 0) {
+                riskLevel = 'critical';
+                html += `<div class="alert alert-critical">
+                    <div class="alert-icon">🚨</div>
+                    <div class="alert-content">
+                        <div class="alert-title">CRITICAL THREATS DETECTED (${findings.critical.length})</div>
+                        <p>This model contains high-risk elements. Loading is NOT recommended.</p>
+                        <ul class="findings-list">`;
+                
+                findings.critical.forEach(f => {
+                    html += `<li><strong>${f.type}:</strong> ${f.message}`;
+                    if (f.details && f.details.length > 0) {
+                        html += `<ul style="margin-top: 5px;">`;
+                        f.details.forEach(d => {
+                            html += `<li style="font-size: 12px;">${d}</li>`;
+                        });
+                        html += `</ul>`;
+                    }
+                    html += `</li>`;
+                });
+                
+                html += `</ul></div></div>`;
+            }
+
+            // Warnings
+            if (findings.warnings.length > 0 && riskLevel === 'safe') {
+                riskLevel = 'warning';
+            }
+            
+            if (findings.warnings.length > 0) {
+                html += `<div class="alert alert-warning">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                        <div class="alert-title">WARNINGS (${findings.warnings.length})</div>
+                        <p>Potential security concerns detected. Proceed with caution.</p>
+                        <ul class="findings-list">`;
+                
+                findings.warnings.forEach(f => {
+                    html += `<li><strong>${f.type}:</strong> ${f.message}`;
+                    if (f.details && f.details.length > 0) {
+                        html += `<ul style="margin-top: 5px; max-height: 400px; overflow-y: auto;">`;
+                        f.details.forEach(d => {
+                            html += `<li style="font-size: 12px; word-break: break-all;">${d}</li>`;
+                        });
+                        html += `</ul>`;
+                    }
+                    html += `</li>`;
+                });
+                
+                html += `</ul></div></div>`;
+            }
+
+            // Safe findings
+            if (findings.safe.length > 0) {
+                html += `<div class="alert alert-success">
+                    <div class="alert-icon">✅</div>
+                    <div class="alert-content">
+                        <div class="alert-title">PASSED CHECKS (${findings.safe.length})</div>
+                        <ul class="findings-list">`;
+                
+                findings.safe.forEach(s => {
+                    html += `<li>${s}</li>`;
+                });
+                
+                html += `</ul></div></div>`;
+            }
+
+            // Info
+            if (findings.info.length > 0) {
+                html += `<div class="alert alert-info">
+                    <div class="alert-icon">ℹ️</div>
+                    <div class="alert-content">
+                        <div class="alert-title">ADDITIONAL INFORMATION</div>
+                        <ul class="findings-list">`;
+                
+                findings.info.forEach(i => {
+                    html += `<li>${i}</li>`;
+                });
+                
+                html += `</ul></div></div>`;
+            }
+
+            scanResults.innerHTML = html;
+
+            // Show load button with appropriate styling
+            loadBtn.style.display = 'block';
+            if (riskLevel === 'critical') {
+                loadBtn.className = 'button danger';
+                loadBtn.textContent = '⚠️ Load Anyway (NOT RECOMMENDED)';
+                scanPassed = false;
+            } else if (riskLevel === 'warning') {
+                loadBtn.className = 'button warning';
+                loadBtn.textContent = '⚠️ Proceed with Caution';
+                scanPassed = true;
+            } else {
+                loadBtn.className = 'button';
+                loadBtn.textContent = '✅ Proceed to Load Model';
+                scanPassed = true;
+            }
+        }
+
+        // Load model
+        loadBtn.addEventListener('click', async function() {
+            if (!modelArrayBuffer) return;
+
+            loadBtn.disabled = true;
+            output.textContent += '\n\nLoading model into ONNX Runtime...\n';
+            output.textContent += '===================================\n\n';
+
+            try {
+                session = await ort.InferenceSession.create(modelArrayBuffer);
+                
+                output.textContent += '✅ Model loaded successfully!\n\n';
+
+                displayModelInfo();
+                
+                modelInfoSection.style.display = 'block';
+                inferenceSection.style.display = 'block';
+
+            } catch (error) {
+                output.textContent += `\n❌ Error loading model:\n${error.message}\n\n`;
+                output.textContent += 'Stack trace:\n' + error.stack;
+            } finally {
+                loadBtn.disabled = false;
+            }
+        });
+
+        function displayModelInfo() {
+            output.textContent += 'Model Information:\n';
+            output.textContent += '===================\n';
+            
+            let info = '<h3>Model Metadata</h3>';
+            
+            if (session.inputNames) {
+                const inputNames = session.inputNames;
+                info += `<p><strong>Inputs:</strong> ${inputNames.length}</p>`;
+                output.textContent += `Input names: ${inputNames.join(', ')}\n`;
+                
+                info += '<h3 style="margin-top: 15px;">Input Details</h3>';
+                inputNames.forEach(name => {
+                    output.textContent += `\nInput: ${name}\n`;
+                    info += `<p><strong>${name}:</strong> Shape information not available in ONNX Runtime Web</p>`;
+                });
+            }
+            
+            if (session.outputNames) {
+                const outputNames = session.outputNames;
+                info += `<p><strong>Outputs:</strong> ${outputNames.length}</p>`;
+                output.textContent += `\nOutput names: ${outputNames.join(', ')}\n`;
+                
+                info += '<h3 style="margin-top: 15px;">Output Details</h3>';
+                outputNames.forEach(name => {
+                    output.textContent += `\nOutput: ${name}\n`;
+                    info += `<p><strong>${name}:</strong> Shape information not available in ONNX Runtime Web</p>`;
+                });
+            }
+            
+            modelInfo.innerHTML = info;
+            output.textContent += '\n';
+        }
+
+        // Run inference
+        inferBtn.addEventListener('click', async function() {
+            if (!session) return;
+
+            inferBtn.disabled = true;
+            inferStatus.innerHTML = '<div class="alert alert-info"><div class="alert-icon"><span class="loading"></span></div><div class="alert-content">Running inference...</div></div>';
+            output.textContent += '\nRunning inference with random data...\n';
+            output.textContent += '=====================================\n';
+
+            try {
+                const feeds = {};
+                
+                session.inputNames.forEach(name => {
+                    const dims = [1, 3, 224, 224]; // Default shape
+                    const size = dims.reduce((a, b) => a * b, 1);
+                    
+                    const data = new Float32Array(size);
+                    for (let i = 0; i < size; i++) {
+                        data[i] = Math.random();
+                    }
+                    
+                    feeds[name] = new ort.Tensor('float32', data, dims);
+                    output.textContent += `Input "${name}": shape ${dims.join(' × ')}, ${size} elements\n`;
+                });
+
+                output.textContent += '\nExecuting model...\n';
+                const startTime = performance.now();
+                const results = await session.run(feeds);
+                const endTime = performance.now();
+
+                output.textContent += `\n✅ Inference completed in ${(endTime - startTime).toFixed(2)}ms\n\n`;
+                output.textContent += 'Output Results:\n';
+                output.textContent += '===============\n';
+
+                for (const name in results) {
+                    const tensor = results[name];
+                    output.textContent += `\nOutput "${name}":\n`;
+                    output.textContent += `  Shape: ${tensor.dims.join(' × ')}\n`;
+                    output.textContent += `  Type: ${tensor.type}\n`;
+                    output.textContent += `  Data (first 10): [${Array.from(tensor.data.slice(0, 10)).map(v => v.toFixed(4)).join(', ')}...]\n`;
+                }
+
+                inferStatus.innerHTML = `<div class="alert alert-success"><div class="alert-icon">✅</div><div class="alert-content">Inference completed in ${(endTime - startTime).toFixed(2)}ms</div></div>`;
+
+            } catch (error) {
+                output.textContent += `\n❌ Error during inference:\n${error.message}\n`;
+                inferStatus.innerHTML = `<div class="alert alert-critical"><div class="alert-icon">❌</div><div class="alert-content">${error.message}</div></div>`;
+            } finally {
+                inferBtn.disabled = false;
+            }
+        });
+
+        output.textContent = 'Select an ONNX file to begin security scanning...\n';
+    </script>
+</body>
+</html>

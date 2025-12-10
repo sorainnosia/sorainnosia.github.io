@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PDFMaker - Professional HTML to PDF Converter for Android. Convert HTML documents with CSS styling to high-quality PDF files.">
+    <meta name="keywords" content="PDF, HTML to PDF, PDF Converter, Android, Rust, CSS, Web Fonts">
+    <title>PDFMaker - HTML to PDF Converter | John Kenedy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --text-color: #333;
+            --light-bg: #ecf0f1;
+            --white: #ffffff;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white);
+            padding: 2rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .logo p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover {
+            opacity: 0.8;
+        }
+
+        .content-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 3rem;
+            margin: 3rem auto;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero-text h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-text .tagline {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-image img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: #01875f;
+            color: var(--white);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 1rem;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(1, 135, 95, 0.4);
+        }
+
+        .download-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .feature-card h4 {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .tech-tag {
+            background: var(--secondary-color);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .use-cases {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .use-cases h3 {
+            color: var(--white);
+            margin-top: 0;
+        }
+
+        .use-cases ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .use-cases li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .use-cases li:before {
+            content: ">";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .screenshot-gallery {
+            margin-top: 2rem;
+        }
+
+        .screenshot-gallery img {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        footer {
+            background: var(--primary-color);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+
+            .hero-image {
+                order: -1;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content-card {
+                padding: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>John Kenedy</h1>
+                    <p>Senior Software Developer</p>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html" class="back-link"><span>&larr;</span> Back to Portfolio</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="content-card">
+            <div class="hero-section">
+                <div class="hero-text">
+                    <h1>PDFMaker</h1>
+                    <p class="tagline">Professional HTML to PDF Converter</p>
+                    <p>
+                        Transform your HTML documents into beautifully formatted PDF files with full CSS styling support.
+                        Built with Rust for maximum performance and reliability, PDFMaker handles everything from simple
+                        documents to complex layouts with web fonts, images, and international text.
+                    </p>
+                    <a href="https://play.google.com/store/apps/details?id=com.pdfmaker.johnkenedy" class="download-btn" target="_blank" rel="noopener noreferrer">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
+                        </svg>
+                        Get it on Google Play
+                    </a>
+                </div>
+                <div class="hero-image">
+                    <img src="content/pdfmaker2.jpg" alt="PDFMaker Application Screenshot">
+                </div>
+            </div>
+
+            <h2>Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>CSS3 Support</h4>
+                    <p>Complete CSS3 implementation including flexbox layouts, CSS gradients, box shadows, border radius, and pseudo-elements (::before, ::after, ::first-letter) for pixel-perfect document styling.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Web Font Integration</h4>
+                    <p>Load custom fonts via @font-face rules with support for WOFF2, WOFF, and TTF formats. Automatic font caching ensures fast subsequent conversions. Font subsetting keeps PDF files compact.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>International Text Support</h4>
+                    <p>Full Unicode support with OpenType text shaping via rustybuzz. Correctly renders Arabic, Hebrew (RTL scripts), Chinese, Japanese, Korean (CJK), and other complex scripts.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>SVG Vector Graphics</h4>
+                    <p>High-quality SVG rendering powered by resvg. Embed icons, charts, diagrams, and vector illustrations that scale perfectly in your PDF documents.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Multiple Paper Sizes</h4>
+                    <p>Support for standard paper sizes including A3, A4, A5, US Letter, and US Legal. Custom dimensions can be specified via CSS @page rules or command-line options.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Image Embedding</h4>
+                    <p>Embed images in JPEG, PNG, GIF, WebP, and BMP formats. Base64-encoded inline images are supported for self-contained HTML documents.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>CSS Variables</h4>
+                    <p>Use CSS custom properties (variables) defined in :root for consistent theming across your documents. Dynamic value resolution throughout your stylesheets.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Table Layouts</h4>
+                    <p>Proper HTML table rendering with support for complex table structures, cell spanning, borders, and background colors for professional data presentation.</p>
+                </div>
+            </div>
+
+            <h3>Technology Stack</h3>
+            <div class="tech-stack">
+                <span class="tech-tag">Rust</span>
+                <span class="tech-tag">Tauri</span>
+                <span class="tech-tag">pdf-writer</span>
+                <span class="tech-tag">rustybuzz</span>
+                <span class="tech-tag">resvg</span>
+                <span class="tech-tag">scraper</span>
+                <span class="tech-tag">cssparser</span>
+                <span class="tech-tag">ttf-parser</span>
+                <span class="tech-tag">unicode-bidi</span>
+            </div>
+
+            <div class="use-cases">
+                <h3>Perfect For</h3>
+                <ul>
+                    <li>Invoice and receipt generation</li>
+                    <li>Report creation from templates</li>
+                    <li>Certificate and document printing</li>
+                    <li>E-commerce order confirmations</li>
+                    <li>Newsletter and email archiving</li>
+                    <li>Resume and CV formatting</li>
+                    <li>Multi-language document support</li>
+                    <li>Branded document generation</li>
+                </ul>
+            </div>
+
+            <h3>How It Works</h3>
+            <p style="margin-bottom: 1rem;">
+                PDFMaker uses a multi-stage pipeline to convert HTML to PDF:
+            </p>
+            <ol style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                <li style="margin-bottom: 0.5rem;"><strong>HTML Parsing:</strong> The HTML document is parsed into a DOM tree using the scraper library.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>CSS Processing:</strong> All CSS (external files, &lt;style&gt; tags, and inline styles) is parsed and computed styles are calculated for each element.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Layout Calculation:</strong> A layout tree is built with precise positioning, handling flexbox, text wrapping, and page breaks.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Text Shaping:</strong> Complex scripts (Arabic, Hebrew, CJK) are shaped using rustybuzz for correct glyph positioning and ligatures.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Rendering:</strong> The layout is rendered to a display list with all visual elements (text, images, shapes, gradients).</li>
+                <li style="margin-bottom: 0.5rem;"><strong>PDF Generation:</strong> The final PDF is generated with embedded fonts (subsetted for size optimization) and compressed content streams.</li>
+            </ol>
+
+            <div class="screenshot-gallery">
+                <h3>Application Screenshot</h3>
+                <img src="content/pdfmaker.png" alt="PDFMaker Desktop Screenshot">
+            </div>
+
+            <h3 style="margin-top: 3rem;">Get PDFMaker</h3>
+            <p style="margin-bottom: 1rem;">
+                PDFMaker is available on Google Play for Android devices. Download now and start converting your HTML documents to professional PDF files.
+            </p>
+            <a href="https://play.google.com/store/apps/details?id=com.pdfmaker.johnkenedy" class="download-btn" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
+                </svg>
+                Download on Google Play
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 John Kenedy. All rights reserved.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Senior Software Developer | Singapore</p>
+        </div>
+    </footer>
+</body>
+</html>

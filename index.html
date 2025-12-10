@@ -562,7 +562,28 @@
                 </p>
 
                 <div class="product-grid">
-                    <!-- Product 1: Downloader -->
+                    <!-- Product 1: PDFMaker -->
+                    <div class="product-card" onclick="javascript:window.location.href='pdfmaker.html'">
+                        <h3>PDFMaker - HTML to PDF Converter</h3>
+                        <img src="content/pdfmaker.png" alt="PDFMaker Screenshot" class="product-screenshot-img">
+                        <p>
+                            Professional-grade HTML to PDF converter written in Rust with CSS styling support.
+                            Converts HTML documents with embedded styles to high-quality PDF files, supporting web fonts,
+                            complex layouts, and international text including CJK and RTL scripts.
+                        </p>
+                        <ul class="features-list">
+                            <li>CSS3 support with flexbox, gradients, and pseudo-elements (::before, ::after, ::first-letter)</li>
+                            <li>Web font loading via @font-face with WOFF2/TTF support and automatic caching</li>
+                            <li>OpenType text shaping with rustybuzz for Arabic, Hebrew, and complex scripts</li>
+                            <li>CJK (Chinese, Japanese, Korean) text rendering with proper font fallback</li>
+                            <li>SVG rendering with resvg for vector graphics and icons</li>
+                            <li>Multiple paper sizes (A3, A4, A5, Letter, Legal) with custom dimensions</li>
+                            <li>WebAssembly build for browser-based PDF generation</li>
+                            <li>Font subsetting for optimized PDF file sizes</li>
+                        </ul>
+                    </div>
+
+                    <!-- Product 2: Downloader -->
                     <div class="product-card" onclick="javascript:window.location.href='#'">
                         <h3>Advanced Download Manager</h3>
                         <img src="content/downloader.png" alt="Advanced Download Manager Screenshot" class="product-screenshot-img">
@@ -639,7 +660,7 @@
                     </div>
 
                     <!-- Product 5: ONNX Security Scanner -->
-                    <div class="product-card" onclick="javascript:window.location.href='#'">
+                    <div class="product-card" onclick="javascript:window.location.href='onnx_scanner.html'">
                         <h3>ONNX Model Security Scanner</h3>
                         <img src="content/onnx.png" alt="ONNX Model Scanner" class="product-screenshot-img">
                         <p>

@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONNX Model Loader with Security Scanner</title>
-	<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.1/dist/ort.min.js"></script>
+    <meta name="description" content="ONNX Model Security Scanner - Scan ONNX machine learning models for security threats before loading">
+    <meta name="keywords" content="ONNX, Security Scanner, Machine Learning, AI Security, Model Scanner">
+    <title>ONNX Model Security Scanner | John Kenedy</title>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.1/dist/ort.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,54 +14,202 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --text-color: #333;
+            --light-bg: #ecf0f1;
+            --white: #ffffff;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white);
+            padding: 2rem 0;
+            box-shadow: var(--shadow);
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
+            padding: 0 2rem;
         }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
         }
 
-        .header p {
+        .logo p {
+            font-size: 0.9rem;
             opacity: 0.9;
-            font-size: 14px;
         }
 
-        .content {
-            padding: 30px;
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover {
+            opacity: 0.8;
+        }
+
+        .content-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 3rem;
+            margin: 3rem auto;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero-text h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-text .tagline {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-image img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .feature-card h4 {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .tech-tag {
+            background: var(--secondary-color);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        footer {
+            background: var(--primary-color);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        /* Scanner Specific Styles */
+        .scanner-section {
+            margin-top: 3rem;
         }
 
         .section {
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
         }
 
-        .section h2 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 15px;
+        .section h3 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-top: 0;
         }
 
         .file-input-wrapper {
@@ -79,7 +229,7 @@
         .file-input-label {
             display: block;
             padding: 20px;
-            background: #f7fafc;
+            background: var(--light-bg);
             border: 2px dashed #cbd5e0;
             border-radius: 8px;
             text-align: center;
@@ -88,17 +238,17 @@
         }
 
         .file-input-label:hover {
-            background: #edf2f7;
-            border-color: #667eea;
+            background: #dfe6e9;
+            border-color: var(--secondary-color);
         }
 
         .file-input-label.has-file {
-            background: #e6fffa;
-            border-color: #38b2ac;
+            background: #d4edda;
+            border-color: #28a745;
         }
 
         .button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -113,7 +263,7 @@
 
         .button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
         }
 
         .button:disabled {
@@ -123,24 +273,24 @@
         }
 
         .button.danger {
-            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         }
 
         .button.warning {
-            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
         }
 
         .info-box {
-            background: #f7fafc;
-            border-left: 4px solid #667eea;
+            background: var(--light-bg);
+            border-left: 4px solid var(--secondary-color);
             padding: 15px;
             border-radius: 4px;
             margin-top: 15px;
         }
 
-        .info-box h3 {
+        .info-box h4 {
             font-size: 14px;
-            color: #2d3748;
+            color: var(--primary-color);
             margin-bottom: 8px;
         }
 
@@ -165,26 +315,26 @@
         }
 
         .alert-critical {
-            background: #fed7d7;
-            border: 2px solid #fc8181;
+            background: #fde8e8;
+            border: 2px solid var(--accent-color);
             color: #742a2a;
         }
 
         .alert-warning {
             background: #fef5e7;
-            border: 2px solid #f6ad55;
+            border: 2px solid #f39c12;
             color: #744210;
         }
 
         .alert-info {
-            background: #bee3f8;
-            border: 2px solid #4299e1;
+            background: #e8f4fd;
+            border: 2px solid var(--secondary-color);
             color: #2c5282;
         }
 
         .alert-success {
-            background: #c6f6d5;
-            border: 2px solid #48bb78;
+            background: #d4edda;
+            border: 2px solid #28a745;
             color: #22543d;
         }
 
@@ -215,7 +365,7 @@
         }
 
         .output-box {
-            background: #1a202c;
+            background: var(--primary-color);
             color: #e2e8f0;
             padding: 20px;
             border-radius: 8px;
@@ -238,7 +388,7 @@
             width: 20px;
             height: 20px;
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border-top: 3px solid var(--secondary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-right: 10px;
@@ -250,95 +400,220 @@
             100% { transform: rotate(360deg); }
         }
 
-        .status {
-            padding: 10px 15px;
-            border-radius: 6px;
-            margin-top: 15px;
-            font-size: 14px;
+        .use-cases {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 2rem;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-right: 5px;
+        .use-cases h3 {
+            color: var(--white);
+            margin-top: 0;
         }
 
-        .badge-critical { background: #fed7d7; color: #742a2a; }
-        .badge-high { background: #fef5e7; color: #744210; }
-        .badge-medium { background: #fef5e7; color: #744210; }
-        .badge-low { background: #bee3f8; color: #2c5282; }
-        .badge-safe { background: #c6f6d5; color: #22543d; }
+        .use-cases ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .use-cases li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .use-cases li:before {
+            content: ">";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+
+            .hero-image {
+                order: -1;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content-card {
+                padding: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🔒 ONNX Model Loader + Security Scanner</h1>
-            <p>Scan for threats before loading ONNX models</p>
-        </div>
-
-        <div class="content">
-            <!-- File Upload Section -->
-            <div class="section">
-                <h2>📁 Step 1: Select ONNX Model</h2>
-                <div class="file-input-wrapper">
-                    <input type="file" id="fileInput" accept=".onnx">
-                    <label class="file-input-label" id="fileLabel">
-                        <div style="font-size: 40px; margin-bottom: 10px;">📤</div>
-                        <div style="font-weight: 600; margin-bottom: 5px;">Click to select ONNX file</div>
-                        <div style="font-size: 12px; color: #718096;">File will be scanned for security threats</div>
-                    </label>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>John Kenedy</h1>
+                    <p>Senior Software Developer</p>
                 </div>
-                <button class="button" id="scanBtn" disabled>Scan for Security Threats</button>
-            </div>
-
-            <!-- Security Scan Results -->
-            <div class="section" id="scanResultsSection" style="display: none;">
-                <h2>🔍 Step 2: Security Scan Results</h2>
-                <div id="scanResults"></div>
-                <button class="button" id="loadBtn" style="display: none;">Proceed to Load Model</button>
-            </div>
-
-            <!-- Model Info Section -->
-            <div class="section" id="modelInfoSection" style="display: none;">
-                <h2>ℹ️ Step 3: Model Information</h2>
-                <div class="info-box" id="modelInfo"></div>
-            </div>
-
-            <!-- Inference Section -->
-            <div class="section" id="inferenceSection" style="display: none;">
-                <h2>🚀 Step 4: Run Inference (Example)</h2>
-                <div class="info-box">
-                    <p><strong>Note:</strong> This runs with random input data for testing purposes.</p>
-                </div>
-                <button class="button" id="inferBtn">Run Inference with Random Data</button>
-                <div id="inferStatus"></div>
-            </div>
-
-            <!-- Output Section -->
-            <div class="section">
-                <h2>📊 Detailed Output</h2>
-                <div class="output-box" id="output"></div>
-            </div>
-
-            <!-- Instructions -->
-            <div class="section">
-                <div class="info-box">
-                    <h3>🔒 Security Features:</h3>
+                <nav>
                     <ul>
-                        <li>Scans for HTTP/HTTPS URLs in model</li>
-                        <li>Detects custom operators (potential code execution)</li>
-                        <li>Identifies external data references</li>
-                        <li>Checks for suspicious code patterns</li>
-                        <li>Detects embedded executables</li>
+                        <li><a href="index.html" class="back-link"><span>&larr;</span> Back to Portfolio</a></li>
                     </ul>
-                </div>
+                </nav>
             </div>
         </div>
-    </div>
+    </header>
+
+    <main class="container">
+        <div class="content-card">
+            <div class="hero-section">
+                <div class="hero-text">
+                    <h1>ONNX Model Security Scanner</h1>
+                    <p class="tagline">Scan Before You Load</p>
+                    <p>
+                        Protect your systems from malicious machine learning models. This security scanner analyzes
+                        ONNX models for embedded URLs, code execution patterns, suspicious file paths, and other
+                        potential threats before loading them into ONNX Runtime.
+                    </p>
+                </div>
+                <div class="hero-image">
+                    <img src="content/onnx.png" alt="ONNX Security Scanner Screenshot">
+                </div>
+            </div>
+
+            <h2>Security Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>URL Detection</h4>
+                    <p>Scans for embedded HTTP/HTTPS URLs that could be used for data exfiltration or command-and-control communication.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Custom Operator Detection</h4>
+                    <p>Identifies non-standard operator domains that may contain custom code execution capabilities.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>External Data References</h4>
+                    <p>Detects references to external data files that could be used to load malicious payloads.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Code Execution Patterns</h4>
+                    <p>Searches for dangerous patterns like eval(), exec(), subprocess calls that indicate potential code execution.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Embedded Executables</h4>
+                    <p>Detects PE (Windows) and ELF (Linux) executable headers that may indicate embedded malware.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Network Operations</h4>
+                    <p>Identifies network-related strings like socket, connect, curl that could enable remote communication.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>File Path Analysis</h4>
+                    <p>Detects suspicious file paths including path traversal attempts and system directory references.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Entropy Analysis</h4>
+                    <p>Calculates file entropy to detect encrypted or heavily obfuscated content that may hide malicious code.</p>
+                </div>
+            </div>
+
+            <div class="use-cases">
+                <h3>Why Scan ONNX Models?</h3>
+                <ul>
+                    <li>Models from untrusted sources may contain malware</li>
+                    <li>Supply chain attacks target ML pipelines</li>
+                    <li>Custom operators can execute arbitrary code</li>
+                    <li>External data references can load payloads</li>
+                    <li>Embedded URLs enable C2 communication</li>
+                    <li>Protect production environments</li>
+                </ul>
+            </div>
+
+            <!-- Scanner Tool Section -->
+            <div class="scanner-section">
+                <h2>Try the Scanner</h2>
+
+                <!-- File Upload Section -->
+                <div class="section">
+                    <h3>Step 1: Select ONNX Model</h3>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="fileInput" accept=".onnx">
+                        <label class="file-input-label" id="fileLabel">
+                            <div style="font-size: 40px; margin-bottom: 10px;">📤</div>
+                            <div style="font-weight: 600; margin-bottom: 5px;">Click to select ONNX file</div>
+                            <div style="font-size: 12px; color: #718096;">File will be scanned for security threats</div>
+                        </label>
+                    </div>
+                    <button class="button" id="scanBtn" disabled>Scan for Security Threats</button>
+                </div>
+
+                <!-- Security Scan Results -->
+                <div class="section" id="scanResultsSection" style="display: none;">
+                    <h3>Step 2: Security Scan Results</h3>
+                    <div id="scanResults"></div>
+                    <button class="button" id="loadBtn" style="display: none;">Proceed to Load Model</button>
+                </div>
+
+                <!-- Model Info Section -->
+                <div class="section" id="modelInfoSection" style="display: none;">
+                    <h3>Step 3: Model Information</h3>
+                    <div class="info-box" id="modelInfo"></div>
+                </div>
+
+                <!-- Inference Section -->
+                <div class="section" id="inferenceSection" style="display: none;">
+                    <h3>Step 4: Run Inference (Example)</h3>
+                    <div class="info-box">
+                        <p><strong>Note:</strong> This runs with random input data for testing purposes.</p>
+                    </div>
+                    <button class="button" id="inferBtn">Run Inference with Random Data</button>
+                    <div id="inferStatus"></div>
+                </div>
+
+                <!-- Output Section -->
+                <div class="section">
+                    <h3>Detailed Output</h3>
+                    <div class="output-box" id="output"></div>
+                </div>
+            </div>
+
+            <h3>Technology Stack</h3>
+            <div class="tech-stack">
+                <span class="tech-tag">JavaScript</span>
+                <span class="tech-tag">ONNX Runtime Web</span>
+                <span class="tech-tag">WebAssembly</span>
+                <span class="tech-tag">Pattern Matching</span>
+                <span class="tech-tag">Entropy Analysis</span>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 John Kenedy. All rights reserved.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Senior Software Developer | Singapore</p>
+        </div>
+    </footer>
 
     <script>
         let session = null;
@@ -390,16 +665,16 @@
                 // Read file
                 modelArrayBuffer = await modelFile.arrayBuffer();
                 const uint8Array = new Uint8Array(modelArrayBuffer);
-                
+
                 output.textContent += `File: ${modelFile.name}\n`;
                 output.textContent += `Size: ${(modelFile.size / 1024 / 1024).toFixed(2)} MB\n\n`;
 
                 // Perform security scan
                 const findings = await performSecurityScan(uint8Array);
-                
+
                 // Display results
                 displayScanResults(findings);
-                
+
                 scanResultsSection.style.display = 'block';
 
             } catch (error) {
@@ -457,10 +732,10 @@
             while ((match = customDomainPattern.exec(textContent)) !== null) {
                 customDomains.push(match[1]);
             }
-            
+
             const standardDomains = ['ai.onnx', 'ai.onnx.ml', 'com.microsoft'];
             const nonStandardDomains = customDomains.filter(d => !standardDomains.includes(d));
-            
+
             if (nonStandardDomains.length > 0) {
                 findings.warnings.push({
                     type: 'Custom Operators',
@@ -505,16 +780,16 @@
                 /\/opt\/[^\s"']*/g,
                 /\/root\/[^\s"']*/g
             ];
-            
+
             let pathsFound = [];
             pathPatterns.forEach(pattern => {
                 const matches = textContent.match(pattern) || [];
                 pathsFound = pathsFound.concat(matches);
             });
-            
+
             // Remove duplicates while preserving all paths
             const uniquePaths = [...new Set(pathsFound)];
-            
+
             if (uniquePaths.length > 0) {
                 findings.warnings.push({
                     type: 'File Paths',
@@ -537,7 +812,7 @@
                 '__import__', 'compile(', 'execfile(', 'globals(',
                 'locals(', 'execvp(', 'fork(', 'spawn('
             ];
-            
+
             const foundPatterns = dangerousPatterns.filter(p => textContent.includes(p));
             if (foundPatterns.length > 0) {
                 findings.critical.push({
@@ -555,9 +830,9 @@
             // 6. Check for embedded executables
             output.textContent += '\n[6/8] Checking for embedded executables...\n';
             const hasPE = data[0] === 0x4D && data[1] === 0x5A; // MZ
-            const hasELF = data[0] === 0x7F && data[1] === 0x45 && 
+            const hasELF = data[0] === 0x7F && data[1] === 0x45 &&
                           data[2] === 0x4C && data[3] === 0x46; // ELF
-            
+
             if (hasPE || hasELF) {
                 findings.critical.push({
                     type: 'Embedded Executable',
@@ -574,7 +849,7 @@
             output.textContent += '\n[7/8] Checking for network operations...\n';
             const networkPatterns = ['socket', 'connect(', 'send(', 'recv(', 'curl', 'wget', 'fetch('];
             const foundNetwork = networkPatterns.filter(p => textContent.includes(p));
-            
+
             if (foundNetwork.length > 0) {
                 findings.warnings.push({
                     type: 'Network Operations',
@@ -590,7 +865,7 @@
             output.textContent += '\n[8/8] Checking file entropy...\n';
             const entropy = calculateEntropy(data.slice(0, 10000));
             findings.info.push(`File entropy: ${entropy.toFixed(2)}`);
-            
+
             if (entropy > 7.9) {
                 findings.warnings.push({
                     type: 'High Entropy',
@@ -609,17 +884,17 @@
         function calculateEntropy(data) {
             const freq = new Array(256).fill(0);
             data.forEach(byte => freq[byte]++);
-            
+
             let entropy = 0;
             const len = data.length;
-            
+
             freq.forEach(count => {
                 if (count > 0) {
                     const p = count / len;
                     entropy -= p * Math.log2(p);
                 }
             });
-            
+
             return entropy;
         }
 
@@ -636,7 +911,7 @@
                         <div class="alert-title">CRITICAL THREATS DETECTED (${findings.critical.length})</div>
                         <p>This model contains high-risk elements. Loading is NOT recommended.</p>
                         <ul class="findings-list">`;
-                
+
                 findings.critical.forEach(f => {
                     html += `<li><strong>${f.type}:</strong> ${f.message}`;
                     if (f.details && f.details.length > 0) {
@@ -648,7 +923,7 @@
                     }
                     html += `</li>`;
                 });
-                
+
                 html += `</ul></div></div>`;
             }
 
@@ -656,7 +931,7 @@
             if (findings.warnings.length > 0 && riskLevel === 'safe') {
                 riskLevel = 'warning';
             }
-            
+
             if (findings.warnings.length > 0) {
                 html += `<div class="alert alert-warning">
                     <div class="alert-icon">⚠️</div>
@@ -664,7 +939,7 @@
                         <div class="alert-title">WARNINGS (${findings.warnings.length})</div>
                         <p>Potential security concerns detected. Proceed with caution.</p>
                         <ul class="findings-list">`;
-                
+
                 findings.warnings.forEach(f => {
                     html += `<li><strong>${f.type}:</strong> ${f.message}`;
                     if (f.details && f.details.length > 0) {
@@ -676,7 +951,7 @@
                     }
                     html += `</li>`;
                 });
-                
+
                 html += `</ul></div></div>`;
             }
 
@@ -687,11 +962,11 @@
                     <div class="alert-content">
                         <div class="alert-title">PASSED CHECKS (${findings.safe.length})</div>
                         <ul class="findings-list">`;
-                
+
                 findings.safe.forEach(s => {
                     html += `<li>${s}</li>`;
                 });
-                
+
                 html += `</ul></div></div>`;
             }
 
@@ -702,11 +977,11 @@
                     <div class="alert-content">
                         <div class="alert-title">ADDITIONAL INFORMATION</div>
                         <ul class="findings-list">`;
-                
+
                 findings.info.forEach(i => {
                     html += `<li>${i}</li>`;
                 });
-                
+
                 html += `</ul></div></div>`;
             }
 
@@ -739,11 +1014,11 @@
 
             try {
                 session = await ort.InferenceSession.create(modelArrayBuffer);
-                
+
                 output.textContent += '✅ Model loaded successfully!\n\n';
 
                 displayModelInfo();
-                
+
                 modelInfoSection.style.display = 'block';
                 inferenceSection.style.display = 'block';
 
@@ -758,33 +1033,33 @@
         function displayModelInfo() {
             output.textContent += 'Model Information:\n';
             output.textContent += '===================\n';
-            
-            let info = '<h3>Model Metadata</h3>';
-            
+
+            let info = '<h4>Model Metadata</h4>';
+
             if (session.inputNames) {
                 const inputNames = session.inputNames;
                 info += `<p><strong>Inputs:</strong> ${inputNames.length}</p>`;
                 output.textContent += `Input names: ${inputNames.join(', ')}\n`;
-                
-                info += '<h3 style="margin-top: 15px;">Input Details</h3>';
+
+                info += '<h4 style="margin-top: 15px;">Input Details</h4>';
                 inputNames.forEach(name => {
                     output.textContent += `\nInput: ${name}\n`;
                     info += `<p><strong>${name}:</strong> Shape information not available in ONNX Runtime Web</p>`;
                 });
             }
-            
+
             if (session.outputNames) {
                 const outputNames = session.outputNames;
                 info += `<p><strong>Outputs:</strong> ${outputNames.length}</p>`;
                 output.textContent += `\nOutput names: ${outputNames.join(', ')}\n`;
-                
-                info += '<h3 style="margin-top: 15px;">Output Details</h3>';
+
+                info += '<h4 style="margin-top: 15px;">Output Details</h4>';
                 outputNames.forEach(name => {
                     output.textContent += `\nOutput: ${name}\n`;
                     info += `<p><strong>${name}:</strong> Shape information not available in ONNX Runtime Web</p>`;
                 });
             }
-            
+
             modelInfo.innerHTML = info;
             output.textContent += '\n';
         }
@@ -800,16 +1075,16 @@
 
             try {
                 const feeds = {};
-                
+
                 session.inputNames.forEach(name => {
                     const dims = [1, 3, 224, 224]; // Default shape
                     const size = dims.reduce((a, b) => a * b, 1);
-                    
+
                     const data = new Float32Array(size);
                     for (let i = 0; i < size; i++) {
                         data[i] = Math.random();
                     }
-                    
+
                     feeds[name] = new ort.Tensor('float32', data, dims);
                     output.textContent += `Input "${name}": shape ${dims.join(' × ')}, ${size} elements\n`;
                 });

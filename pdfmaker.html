@@ -218,6 +218,10 @@
             padding: 0.5rem 0;
             padding-left: 1.5rem;
             position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .use-cases li:before {
@@ -225,6 +229,7 @@
             position: absolute;
             left: 0;
             font-weight: bold;
+            flex-shrink: 0;
         }
 
         .screenshot-gallery {
@@ -293,6 +298,21 @@
 
             nav ul {
                 gap: 1rem;
+            }
+
+            .use-cases {
+                padding: 1.5rem;
+            }
+
+            .use-cases ul {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .use-cases li {
+                padding-left: 1.2rem;
+                font-size: 0.95rem;
+                line-height: 1.5;
             }
         }
     </style>

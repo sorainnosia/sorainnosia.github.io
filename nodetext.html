@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NodeText - Free lightweight code editor with Rust debugging, syntax highlighting for 20+ languages, and built-in terminal. Built with Rust and Tauri.">
+    <meta name="keywords" content="Code Editor, Rust, Debugger, LLDB, Syntax Highlighting, Tauri, Free, Windows, Android">
+    <title>NodeText - Code Editor | John Kenedy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --text-color: #333;
+            --light-bg: #ecf0f1;
+            --white: #ffffff;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white);
+            padding: 2rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .logo p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover {
+            opacity: 0.8;
+        }
+
+        .content-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 3rem;
+            margin: 3rem auto;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero-text h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-text .tagline {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-image img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #27ae60;
+            color: var(--white);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .feature-card h4 {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .tech-tag {
+            background: var(--secondary-color);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .use-cases {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .use-cases h3 {
+            color: var(--white);
+            margin-top: 0;
+        }
+
+        .use-cases ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .use-cases li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .use-cases li:before {
+            content: ">";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .shortcuts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .shortcuts-table th,
+        .shortcuts-table td {
+            padding: 0.7rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .shortcuts-table th {
+            background: var(--primary-color);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .shortcuts-table tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+
+        .shortcuts-table kbd {
+            background: #e8e8e8;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 0.15rem 0.5rem;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .lang-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .lang-item {
+            background: var(--light-bg);
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            color: var(--primary-color);
+            border: 1px solid #ddd;
+        }
+
+        .platform-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .platform-card {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-top: 4px solid var(--secondary-color);
+        }
+
+        .platform-card h4 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .platform-card ul {
+            list-style: none;
+        }
+
+        .platform-card li {
+            padding: 0.3rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #555;
+        }
+
+        .platform-card li:before {
+            content: "\2713";
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .screenshot-gallery {
+            margin-top: 2rem;
+        }
+
+        .screenshot-gallery img {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        footer {
+            background: var(--primary-color);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+
+            .hero-image {
+                order: -1;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content-card {
+                padding: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            .use-cases {
+                padding: 1.5rem;
+            }
+
+            .use-cases ul {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .use-cases li {
+                padding-left: 1.2rem;
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+
+            .platform-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .shortcuts-table {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>John Kenedy</h1>
+                    <p>Senior Software Developer</p>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html" class="back-link"><span>&larr;</span> Back to Portfolio</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="content-card">
+            <div class="hero-section">
+                <div class="hero-text">
+                    <h1>NodeText</h1>
+                    <p class="tagline">Lightweight Code Editor with Rust Debugging</p>
+                    <p>
+                        A fast, free code editor built with Rust and Tauri featuring integrated LLDB debugging,
+                        syntax highlighting for 20+ languages, and a built-in terminal. Designed for developers
+                        who want a lightweight yet capable editor with first-class Rust support.
+                    </p>
+                </div>
+                <div class="hero-image">
+                    <img src="content/nodetext.png" alt="NodeText Code Editor Screenshot">
+                </div>
+            </div>
+
+            <h2>Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>Integrated Rust Debugging</h4>
+                    <p>Full LLDB debugger integration with breakpoints (click the gutter to set), conditional expressions, thread ID filtering, and step controls (Step In, Step Over, Step Out, Continue, Pause). Supports MSVC PDB on Windows.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Variable Inspection</h4>
+                    <p>Watch and Locals panels for inspecting local variables, adding watch expressions, and viewing String contents, and Vec lengths during debugging sessions.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Syntax Highlighting</h4>
+                    <p>Viewport-based syntax highlighting for 20+ languages with zero lag on large files. Auto language detection from file extensions with accurate tokenization for all supported languages.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Built-in Terminal</h4>
+                    <p>Integrated shell panel (Ctrl+`) for running cargo, git, and other commands directly within the editor. Full ANSI color support for rich terminal output.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Code Navigation</h4>
+                    <p>Tree-sitter powered symbol search for Rust code with find definition and find references commands. Navigate your codebase efficiently with AST-aware code intelligence.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Cargo Integration</h4>
+                    <p>Built-in cargo check with JSON diagnostics parsing for real-time error and warning reporting. Run cargo build directly from the editor with structured output.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Find &amp; Replace</h4>
+                    <p>Ctrl+F for find with real-time match highlighting (orange for current match, blue for others). Ctrl+H for find and replace with Replace All. Project-wide search with Ctrl+Shift+F.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Auto LLVM Install</h4>
+                    <p>Automatically downloads and installs LLVM with a progress dialog if no debugger is found on the system. Zero-friction setup for Rust debugging on Windows.</p>
+                </div>
+            </div>
+
+            <h3>Supported Languages</h3>
+            <div class="lang-grid">
+                <div class="lang-item">Rust</div>
+                <div class="lang-item">Python</div>
+                <div class="lang-item">JavaScript</div>
+                <div class="lang-item">TypeScript</div>
+                <div class="lang-item">C / C++</div>
+                <div class="lang-item">C#</div>
+                <div class="lang-item">Java</div>
+                <div class="lang-item">Go</div>
+                <div class="lang-item">HTML</div>
+                <div class="lang-item">CSS</div>
+                <div class="lang-item">JSON</div>
+                <div class="lang-item">XML</div>
+                <div class="lang-item">TOML</div>
+                <div class="lang-item">Markdown</div>
+                <div class="lang-item">Shell / Bash</div>
+                <div class="lang-item">Batch</div>
+                <div class="lang-item">CSV</div>
+                <div class="lang-item">INI</div>
+                <div class="lang-item">Log Files</div>
+                <div class="lang-item">Razor / CSHTML</div>
+            </div>
+
+            <h3>Keyboard Shortcuts</h3>
+            <table class="shortcuts-table">
+                <thead>
+                    <tr>
+                        <th>Shortcut</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><kbd>Ctrl+O</kbd></td><td>Open file</td></tr>
+                    <tr><td><kbd>Ctrl+S</kbd></td><td>Save</td></tr>
+                    <tr><td><kbd>Ctrl+F</kbd></td><td>Find</td></tr>
+                    <tr><td><kbd>Ctrl+H</kbd></td><td>Find &amp; Replace</td></tr>
+                    <tr><td><kbd>Ctrl+Shift+F</kbd></td><td>Search in project</td></tr>
+                    <tr><td><kbd>Ctrl+`</kbd></td><td>Toggle terminal</td></tr>
+                    <tr><td><kbd>F5</kbd></td><td>Start debugging</td></tr>
+                    <tr><td><kbd>F9</kbd></td><td>Toggle breakpoint</td></tr>
+                    <tr><td><kbd>F10</kbd></td><td>Step Over</td></tr>
+                    <tr><td><kbd>F11</kbd></td><td>Step In</td></tr>
+                    <tr><td><kbd>Shift+F11</kbd></td><td>Step Out</td></tr>
+                    <tr><td><kbd>F6</kbd></td><td>Continue</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Technology Stack</h3>
+            <div class="tech-stack">
+                <span class="tech-tag">Rust</span>
+                <span class="tech-tag">Tauri v2</span>
+                <span class="tech-tag">Tree-sitter</span>
+                <span class="tech-tag">LLDB</span>
+                <span class="tech-tag">HTML / CSS / JS</span>
+                <span class="tech-tag">Serde</span>
+                <span class="tech-tag">ureq</span>
+            </div>
+
+            <div class="use-cases">
+                <h3>Built For</h3>
+                <ul>
+                    <li>Rust development with integrated debugging</li>
+                    <li>Quick code editing across 20+ languages</li>
+                    <li>Lightweight alternative to heavy IDEs</li>
+                    <li>Learning and teaching Rust programming</li>
+                    <li>On-the-go coding on Android devices</li>
+                    <li>Project exploration with symbol navigation</li>
+                </ul>
+            </div>
+
+            <h3>Platform Support</h3>
+            <div class="platform-cards">
+                <div class="platform-card">
+                    <h4>Windows</h4>
+                    <ul>
+                        <li>Windows 10+ (64-bit)</li>
+                        <li>~20 MB application size</li>
+                        <li>128 MB RAM minimum</li>
+                        <li>WebView2 runtime</li>
+                        <li>Full LLDB debugging with MSVC PDB support</li>
+                        <li>Auto LLVM 21.1.3 installation</li>
+                    </ul>
+                </div>
+                <div class="platform-card">
+                    <h4>Android</h4>
+                    <ul>
+                        <li>Android 7.0+ (API 24)</li>
+                        <li>~10 MB application size</li>
+                        <li>64 MB RAM minimum</li>
+                        <li>Touch-optimized UI with slide-in explorer</li>
+                        <li>Adaptive toolbar for mobile workflow</li>
+                        <li>Native file picker integration</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="screenshot-gallery">
+                <h3>Application Screenshot</h3>
+                <img src="content/tablet1.jpg" alt="NodeText Code Editor Screenshot">
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 John Kenedy. All rights reserved.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Senior Software Developer | Singapore</p>
+        </div>
+    </footer>
+</body>
+</html>
